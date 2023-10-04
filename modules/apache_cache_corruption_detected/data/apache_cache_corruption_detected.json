@@ -1,0 +1,162 @@
+{
+  "name": "apache_cache_corruption_detected",
+  "description": "This incident type typically refers to a situation where the Apache cache is found to have been corrupted or damaged. The Apache cache is used to store frequently accessed information in order to speed up the delivery of content to visitors. When the cache becomes corrupted, it can cause errors or issues with the website or application that relies on it. This type of incident may require investigation and remediation in order to restore the cache and ensure that the website or application is functioning properly.",
+  "params": [
+    {
+      "name": "DISK_NAME",
+      "value": ""
+    },
+    {
+      "name": "APACHE_CACHE_DIRECTORY",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_CACHE_DIRECTORY",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_APACHE_CLEAN",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Apache Cache Corruption Detected\nThis incident type typically refers to a situation where the Apache cache is found to have been corrupted or damaged. The Apache cache is used to store frequently accessed information in order to speed up the delivery of content to visitors. When the cache becomes corrupted, it can cause errors or issues with the website or application that relies on it. This type of incident may require investigation and remediation in order to restore the cache and ensure that the website or application is functioning properly."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Apache's error log for any relevant messages"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `tail -n 50 /var/log/apache2/error.log`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Apache cache directory for any signs of corruption"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `ls -la ${APACHE_CACHE_DIRECTORY}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if Apache is running"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status apache2`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Restart Apache to see if it resolves the issue"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl restart apache2`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Apache cache size to see if it's larger than expected"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `du -sh ${APACHE_CACHE_DIRECTORY}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the system's memory usage to see if it's causing any issues with the cache"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `free -m`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there are any read or write errors on the disk where the cache is stored"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `dmesg | grep ${DISK_NAME}`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the system's disk usage to see if it's causing any issues with the cache"
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `df -h`"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Restart Apache server: One of the easiest ways to resolve this issue is to restart the Apache server. This will flush the cache and start with a fresh cache."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_stop_start_apache()"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Clear the Cache: Clearing the cache manually can also help resolve the issue. The cache can be cleared by deleting the cache files manually or using a tool like Apache clean."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_clear_cache($PATH_TO_CACHE_DIRECTORY, $PATH_TO_APACHE_CLEAN)"
+    }
+  ]
+}
